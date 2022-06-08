@@ -1,0 +1,17 @@
+# The order of packages is significant, because pip processes them in the order
+# of appearance. Changing the order has an impact on the overall integration
+# process, which may cause wedges in the gate later.
+
+pbr!=2.1.0,>=2.0.0 # Apache-2.0
+keystone>=20.0.0 # Apache-2.0
+cryptography>=2.7 # BSD/Apache-2.0
+SQLAlchemy>=1.4.0 # MIT
+sqlalchemy-migrate>=0.13.0 # Apache-2.0
+stevedore>=1.20.0 # Apache-2.0
+oslo.config>=6.8.0 # Apache-2.0
+oslo.log>=3.44.0 # Apache-2.0
+oslo.utils>=3.33.0 # Apache-2.0
+geoip2>=4.2.0 # Apache-2.0
+pyyaml # MIT
+ua-parser # Apache-2.0
+user-agents # MIT

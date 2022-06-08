@@ -1,0 +1,41 @@
+(undo-tree-save-format-version . 1)
+"06239d3b14292e6bbedac510bcd1349e283c8c08"
+[nil nil nil nil (25248 28246 725162 144000) 0 nil]
+([nil nil ((#("
+    # def clear_entries_by_user(self, user_id):
+    #     with sql.session_for_write() as session:
+    #         self._clear_entries_by_user(session, user_id)
+
+    # def _clear_entries_by_user(self, session, user_id):
+    #     query = (
+    #         delete(model.History).
+    #         where(model.History.user_id == user_id))
+    #     session.execute(query)
+" 0 5 (fontified t) 5 7 (fontified t face font-lock-comment-delimiter-face) 7 49 (fontified t face font-lock-comment-face) 49 53 (fontified t) 53 59 (fontified t face font-lock-comment-delimiter-face) 59 100 (fontified t face font-lock-comment-face) 100 104 (fontified t) 104 114 (fontified t face font-lock-comment-delimiter-face) 114 160 (fontified t face font-lock-comment-face) 160 165 (fontified t) 165 167 (fontified t face font-lock-comment-delimiter-face) 167 219 (fontified t face font-lock-comment-face) 219 223 (fontified t) 223 229 (fontified t face font-lock-comment-delimiter-face) 229 239 (fontified t face font-lock-comment-face) 239 243 (fontified t) 243 253 (fontified t face font-lock-comment-delimiter-face) 253 276 (fontified t face font-lock-comment-face) 276 280 (fontified t) 280 290 (fontified t face font-lock-comment-delimiter-face) 290 331 (fontified t face font-lock-comment-face) 331 335 (fontified t) 335 341 (fontified t face font-lock-comment-delimiter-face) 341 364 (fontified t face font-lock-comment-face)) . 5125) (undo-tree-id29 . -364) (undo-tree-id30 . -1) (undo-tree-id31 . -364) (undo-tree-id32 . -364) (t 25236 34302 503931 0)) nil (25248 28246 725159 851000) 0 nil])
+([nil nil ((#("
+" 0 1 (fontified t)) . -5125) (undo-tree-id20 . -1) (undo-tree-id21 . -1) (undo-tree-id22 . -1) 5126 (#("    " 0 4 (fontified t)) . -5126) (undo-tree-id23 . -4) (undo-tree-id24 . -4) 5130 (#("    " 0 4 (fontified t)) . -5130) (undo-tree-id25 . -4) (undo-tree-id26 . -4) 5134 (#("    " 0 4 (fontified t)) . -5134) (undo-tree-id27 . -4) (undo-tree-id28 . -4) 5138 (5125 . 5138)) nil (25248 28246 725151 472000) 0 nil])
+([nil nil ((#("    # def delete_oldest_entry_by_user(self, user_id):
+    #     with sql.session_for_write() as session:
+    #         self._delete_oldest_entry_by_user(session, user_id)
+
+    # def _delete_oldest_entry_by_user(self, session, user_id):
+    #     subquery = (
+    #         select(fn.min(model.History.successful_auth_at)).
+    #         where(model.History.user_id == user_id).
+    #         scalar_subquery())
+    #     query = (
+    #         delete(model.History).
+    #         where(model.History.user_id == user_id).
+    #         where(model.History.successful_auth_at == subquery).
+    #         execution_options(synchronize_session='fetch'))
+    #     session.execute(query)
+" 0 4 (fontified t) 4 6 (fontified t face font-lock-comment-delimiter-face) 6 10 (fontified t face font-lock-comment-face) 10 37 (fontified t face (idle-highlight-in-visible-buffers font-lock-comment-face)) 37 54 (fontified t face font-lock-comment-face) 54 58 (fontified t) 58 64 (fontified t face font-lock-comment-delimiter-face) 64 105 (fontified t face font-lock-comment-face) 105 109 (fontified t) 109 119 (fontified t face font-lock-comment-delimiter-face) 119 125 (fontified t face font-lock-comment-face) 125 152 (fontified t face (idle-highlight-in-visible-buffers font-lock-comment-face)) 152 171 (fontified t face font-lock-comment-face) 171 176 (fontified t) 176 178 (fontified t face font-lock-comment-delimiter-face) 178 183 (fontified t face font-lock-comment-face) 183 210 (fontified t face (idle-highlight-in-visible-buffers font-lock-comment-face)) 210 236 (fontified t face font-lock-comment-face) 236 240 (fontified t) 240 246 (fontified t face font-lock-comment-delimiter-face) 246 259 (fontified t face font-lock-comment-face) 259 263 (fontified t) 263 273 (fontified t face font-lock-comment-delimiter-face) 273 323 (fontified t face font-lock-comment-face) 323 327 (fontified t) 327 337 (fontified t face font-lock-comment-delimiter-face) 337 378 (fontified t face font-lock-comment-face) 378 382 (fontified t) 382 392 (fontified t face font-lock-comment-delimiter-face) 392 411 (fontified t face font-lock-comment-face) 411 415 (fontified t) 415 421 (fontified t face font-lock-comment-delimiter-face) 421 431 (fontified t face font-lock-comment-face) 431 435 (fontified t) 435 445 (fontified t face font-lock-comment-delimiter-face) 445 468 (fontified t face font-lock-comment-face) 468 472 (fontified t) 472 482 (fontified t face font-lock-comment-delimiter-face) 482 523 (fontified t face font-lock-comment-face) 523 527 (fontified t) 527 537 (fontified t face font-lock-comment-delimiter-face) 537 590 (fontified t face font-lock-comment-face) 590 594 (fontified t) 594 604 (fontified t face font-lock-comment-delimiter-face) 604 622 (fontified t face font-lock-comment-face) 622 641 (fontified t face font-lock-comment-face) 641 652 (fontified t face font-lock-comment-face) 652 656 (fontified t) 656 662 (fontified t face font-lock-comment-delimiter-face) 662 685 (fontified t face font-lock-comment-face)) . 4310) (undo-tree-id11 . -684) (undo-tree-id12 . -54) (undo-tree-id13 . -684) (undo-tree-id14 . -32) (undo-tree-id15 . 1) (undo-tree-id16 . -32) (undo-tree-id17 . -684) (undo-tree-id18 . -32) (undo-tree-id19 . -32) 4342) nil (25248 28246 725138 75000) 0 nil])
+([nil nil ((#("
+" 0 1 (fontified t)) . 4310) (undo-tree-id7 . -1) (undo-tree-id8 . -1) (undo-tree-id9 . 1) (undo-tree-id10 . 1)) nil (25248 28246 725125 537000) 0 nil])
+([nil current ((#("    # def _count_users(self):
+    #     with sql.session_for_read() as session:
+    #         query = select(fn.count()).select_from(user_model.User)
+    #         return session.execute(query).scalar()
+
+" 0 4 (fontified t) 4 6 (fontified t face font-lock-comment-delimiter-face) 6 30 (fontified t face font-lock-comment-face) 30 34 (fontified t) 34 40 (fontified t face font-lock-comment-delimiter-face) 40 80 (fontified t face font-lock-comment-face) 80 84 (fontified t) 84 94 (fontified t face font-lock-comment-delimiter-face) 94 128 (fontified t face font-lock-comment-face) 128 132 (fontified t face font-lock-comment-face) 132 150 (fontified t face font-lock-comment-face) 150 154 (fontified t) 154 164 (fontified t face font-lock-comment-delimiter-face) 164 203 (fontified t face font-lock-comment-face) 203 204 (fontified t)) . 3081) (undo-tree-id0 . -204) (undo-tree-id1 . -203) (undo-tree-id2 . -203) (undo-tree-id3 . -204) (undo-tree-id4 . -203) (undo-tree-id5 . -203) (undo-tree-id6 . -203) 3284) nil (25248 28246 725113 241000) 0 nil])
+nil
