@@ -43,20 +43,20 @@ maxmind_asn_db_path = cfg.StrOpt(
     default=None,
     help=conf.utils.fmt("""
 Provide the absolute path for the maxmind asn database to enable the
-IP subfeature based on the Autonomous System Number (asn).
+IP subfeature based on the Autonomous System Number (asn). (Optional).
 """))
 maxmind_country_db_path = cfg.StrOpt(
     'maxmind_country_db_path',
     default=None,
     help=conf.utils.fmt("""
 Provide the absolute path for the maxmind country database to enable the
-IP subfeature based on the ISO CountryCode (cc).
+IP subfeature based on the ISO CountryCode (cc). (Optional).
 """))
 malicious_ip_list_path = cfg.StrOpt(
     'malicious_ip_list_path',
     default=None,
     help=conf.utils.fmt("""
-Provide the absolute path of an IP address list known for malicious activities.
+Provide the absolute path of an IP address list known for malicious activities. (Optional).
 """))
 reject_threshold = cfg.FloatOpt(
     'reject_threshold',
@@ -68,10 +68,10 @@ The reject threshold is the boundary beyond which a calculated risk score
 leads to the direct failure of the login attempt.
 A calculated risk score indicates a likelihood, where 1.0 is considered the
 most likely attack and 0.0 the most likely legitimate login. Typically the
-risk score takes a value between these limits, enabling actions from a
-threshold value.
+risk score takes with sufficient data a value between these limits, enabling
+actions from a threshold value.
 To deny all login attempts, the reject threshold can be set to its minimum
-value 0.0. Setting up its maximum value 1.0, can be interpreted as disabling
+value 0.0. Setting up its maximum value 10.0, can be interpreted as disabling
 the reject option, as it is not very likely that a calculated risk score will
 ever reach this value. Note that it is possible to set the reject threshold
 below the request threshold, resulting in the disabling of the further
@@ -90,18 +90,19 @@ The request threshold is the boundary beyond which a calculated
 risk score leads to a request for further information. A calculated
 risk score indicates a likelihood, where 1.0 is considered the most
 likely attack and 0.0 the most likely legitimate login. Typically the
-risk score takes a value between these limits, enabling actions from
-a threshold value. To request further information at all login attempts,
-the request threshold can be set to its minimum value 0.0. Setting up
-its maximum value 1.0, can be interpreted as disabling the request
-option, as it is not very likely that a calculated risk score will ever
-reach this value. Note that it is possible to set the reject threshold
-below the request threshold, resulting in the disabling of the further
-information request option and therefore either in a successful login
-or a rejection. Calculated risk scores highly depend on the entries and
-the history size. Therefore should thresholds be adjusted to fit the
-needs. To get an indication, the risk scores of successful logins are
-stored beside the features in the history."""))
+risk score takes with sufficient data a value between these limits, 
+enabling actions from a threshold value. To request further information
+at all login attempts, the request threshold can be set to its minimum 
+value 0.0. Setting up its maximum value 10.0, can be interpreted as 
+disabling the request option, as it is not very likely that a calculated 
+risk score will ever reach this value. Note that it is possible to set 
+the reject threshold below the request threshold, resulting in the 
+disabling of the further information request option and therefore 
+either in a successful login or a rejection. Calculated risk scores
+highly depend on the entries and the history size. Therefore should 
+thresholds be adjusted to fit the needs. To get an indication, the 
+risk scores of successful logins are stored beside the features in 
+the history."""))
 max_user_history_size = cfg.IntOpt(
     'max_user_history_size',
     default=100,
@@ -138,7 +139,7 @@ contact_method = cfg.StrOpt(
     'contact_method',
     default='email',
     help=conf.utils.fmt("""
-The contact_method specifies search term for the deposited type of addressing
+The contact_method specifies the search term for the deposited type of addressing
 the user, that is searched for in the user information. If contacting a user
 is necessary and nothing could be found in the user information, then will the
 authentification fail.
@@ -148,7 +149,7 @@ recipient_designator = cfg.StrOpt(
     default='name',
     help=conf.utils.fmt("""
 The recipient_designator specifies the search term for the name to
-be greeted in passcode message, that is searched for in the user
+be greeted in the passcode message, that is searched for in the user
 information. If nothing could be found in the user information, then
 will the default_recipient be used to greet the user.
 """))
@@ -159,18 +160,20 @@ default_recipient = cfg.StrOpt(
 The default_recipient is used when a recipients name could not be
 found in the user information using the recipient_designator. It lets
 the 'smtp' messenger backend default to the greeting:
-"Dear customer, ..."
+"Dear customer, ..." (See option messenger)
 """))
 include_contact = cfg.BoolOpt(
     'include_contact',
     default=False,
     help=conf.utils.fmt("""
-If this option is set to True, it will force the to include the deposited
-contact in the servers response error message. It will only has an
-effect if a messenger is specifid and should only be used in
+If this option is set to True, it forces to include the deposited
+contact in Keystones response error message. It only has an
+effect if a messenger is specified and should only be used in
 intermediary communication to give the user a hint to look for.
 Otherwise it is not recommended, as it can leak sensitive contact
-information, just as no messenger is specified.
+information. The default behavior if no messenger is specified will 
+always include the information in Keystones response to let an 
+intermediary take over the transmission of the passcode.
 """))
 messenger = cfg.StrOpt(
     'messenger',
@@ -179,7 +182,7 @@ messenger = cfg.StrOpt(
 The messenger backend to send the passcode to the user. If its value
 is None, then will the passcode and the deposited contact be included
 into the unauthorized response message to let the applicant send the
-message. This should only be used if Keystone is not direct reachable
+message. This should only be used if Keystone is not directly reachable
 for the user, as the passcode could be directly used in the next
 authentication. Moreover it can leak the deposited recipient and its
 contact which is why it should only be used in intermediary communication.
@@ -195,32 +198,35 @@ email_host_user = cfg.StrOpt(
     default=None,
     help=conf.utils.fmt("""
 This option references the email address of the host user that shall be used
-to send emails from.
+to send emails from. (Conditional with smtp messenger)
 """))
 email_host_password = cfg.StrOpt(
     'email_host_password',
     default=None,
     help=conf.utils.fmt("""
 This option references the password to use for email_host_user.
+(Conditional with smtp messenger)
 """))
 smtp_host = cfg.IPOpt(
     'smtp_host',
     default=None,
     help=conf.utils.fmt("""
 This option references the SMTP servers IP address or host name.
+(Conditional with smtp messenger)
 """))
 smtp_port = cfg.PortOpt(
     'smtp_port',
     default=25,
     help=conf.utils.fmt("""
 This option references the SMTP servers port.
+(Conditional with smtp messenger)
 """))
 smtp_use_tls = cfg.BoolOpt(
     'smtp_use_tls',
     default=True,
     help=conf.utils.fmt("""
 This option specifies if the communication to the SMTP servers shall be
-encrypted using TLS.
+encrypted using TLS. (Conditional with smtp messenger)
 """))
 
 GROUP_NAME = __name__.split('.')[-1]

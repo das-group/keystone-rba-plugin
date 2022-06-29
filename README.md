@@ -6,21 +6,34 @@ It is intended to be used in Keystones multi-factor authentication mechanism, as
 
 ## Installation
 
-Install it via `pip`:
+The installation should be done with the same operating system user as the keystone installation itself. 
 
-    cd keystone_rba_plugin
+Clone the [keystone-rba-plugin](https://github.com/das-group/keystone-rba-plugin.git) extension repository and install it with pythons package manager [pip](https://pip.pypa.io/en/stable/) as one of the following.
+
+Install via pip:
+
+    cd keystone-rba-plugin
     pip install .
 
-Install from local VCS Branch using `pip`:
-	`pip install <VCS>+file:///<Path_to_setup.py>@<branch>`
-    or editable for development
-	`pip install -e <VCS>+file:///<Path_to_setup.py>/keystone_rba_plugin@<branch>#egg=keystone_rba_plugin`
+Install from local git branch using pip:
+	`pip install git+file:///<Path_to_setup.py>@<branch>`
+
+Or editable for development:
+	`pip install -e git+file:///<Path_to_setup.py>/keystone_rba_plugin@<branch>#egg=keystone_rba_plugin`
 
 The default installation expands the SQL database scheme with an additional table for the authentication history.
 
-Internally uses Keystone the [sqlalchemy-migrate](https://sqlalchemy-migrate.readthedocs.io/en/latest/) package to versionize schema changes.
+Keystone internally uses the [sqlalchemy-migrate](https://sqlalchemy-migrate.readthedocs.io/en/latest/) package to versionize schema changes in earlier releases. Therefore it may be possible that the distinction with the  `legacy_migrations` folder is not present and the destination path needs to be adjusted.
 
-Place the database migration files `etc/sql/contract_repo/080_contract_add_rba_history_table.py`, `etc/sql/data_migration_repo/080_migrate_add_rba_history_table.py` and `etc/sql/expand_repo/080_expand_add_rba_history_table.py` in the corresponding Keystone source folders `keystone/common/sql/contract_repo/versions/`, `keystone/common/sql/data_migration_repo/versions/` and `keystone/common/sql/expand_repo/versions/`.
+
+Place the database migration files from the repository:
+`etc/sql/legacy_migrations/contract_repo/080_contract_add_rba_history_table.py`, 
+`etc/sql/legacy_migrations/data_migration_repo/080_migrate_add_rba_history_table.py` and 
+`etc/sql/legacy_migrations/expand_repo/080_expand_add_rba_history_table.py` 
+Into the corresponding Keystone source folders:
+`keystone/common/sql/legacy_migrations/contract_repo/versions/`, 
+`keystone/common/sql/legacy_migrations/data_migration_repo/versions/` and 
+`keystone/common/sql/legacy_migrations/expand_repo/versions/`.
 
 Depending on your Keystone installation, it may be in the `site-packages` folder of the `pip` package manager.
 
