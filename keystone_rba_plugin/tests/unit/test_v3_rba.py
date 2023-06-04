@@ -13,29 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
 import fixtures
 import freezegun
 import http.client
-import os
 
 from keystone import exception
 from keystone.common import provider_api
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3_auth
 from keystone.tests.unit import test_auth_plugin
-from keystone.tests.unit import utils #@wip()
+from keystone.tests.unit import utils
 
 from keystone_rba_plugin.auth.plugins import rba
 from keystone_rba_plugin.tests.common import auth
 
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
-from pathlib import Path
-
-ASN_DB = Path().resolve() / 'etc/GeoLite2-ASN.mmdb'
-CC_DB = Path().resolve() / 'etc/GeoLite2-Country.mmdb'
-MALICIOUS_ADDRESSES = os.path.join(auth.DIR, 'malicious_addresses.netset')
 
 
 class TestRiskBasedAuthentication(test_v3_auth.TestMFARules, auth.RBATestMixin):
@@ -49,11 +42,11 @@ class TestRiskBasedAuthentication(test_v3_auth.TestMFARules, auth.RBATestMixin):
         self.config_fixture.config(group='rba', max_user_history_size=10)
         self.config_fixture.config(group='rba', restrict_to_mfa=False)
         self.config_fixture.config(group='rba',
-                                   maxmind_asn_db_path=ASN_DB)
+                                   maxmind_asn_db_path=auth.ASN_DB)
         self.config_fixture.config(group='rba',
-                                   maxmind_country_db_path=CC_DB)
+                                   maxmind_country_db_path=auth.CC_DB)
         self.config_fixture.config(group='rba',
-                                   malicious_ip_list_path=MALICIOUS_ADDRESSES)
+                                   malicious_ip_list_path=auth.MALICIOUS_ADDRESSES)
         self._init_features()
 
     def auth_plugin_config_override(self, methods=None, **method_classes):
@@ -98,7 +91,7 @@ class TestRiskBasedAuthentication(test_v3_auth.TestMFARules, auth.RBATestMixin):
             expected_status=http.client.CREATED)
 
     def test_authenticate_with_features_and_passcode(self):
-        self.config_fixture.config(group='rba', request_threshold=0.1)
+        self.config_fixture.config(group='rba', request_threshold=0.001)
         response = self.v3_create_token(
             self.build_authentication_request(
                 user_id=self.user_id,

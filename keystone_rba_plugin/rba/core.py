@@ -69,6 +69,13 @@ dynamically calls the backend.
         self.p_A_given_xk = {
             'ip': self.p_A_given_ip,
         }
+        self.lai = {'attempt': [],
+                    'p_x': [],
+                    'p_x_u_L': [],
+                    'p_A': [],
+                    'p_L': [],
+                    'risk_score': []}
+
 
     def load_malicious_networks(self):
         self.malicious_networks = None
@@ -127,13 +134,13 @@ dynamically calls the backend.
                     feature, {}).setdefault(feature, 1.0)
             if feature == 'ua':
                 self.coefficients.setdefault(
-                    feature, {}).setdefault(feature, 0.53)
+                    feature, {}).setdefault(feature, 0.5386653840551359)
                 self.coefficients.setdefault(
-                    feature, {}).setdefault('bv', 0.27)
+                    feature, {}).setdefault('bv', 0.2680451498625666)
                 self.coefficients.setdefault(
-                    feature, {}).setdefault('osv', 0.19)
+                    feature, {}).setdefault('osv', 0.18818295100109536)
                 self.coefficients.setdefault(
-                    feature, {}).setdefault('df', 0.01)
+                    feature, {}).setdefault('df', 0.0051065150812021525)
 
     def _add_features(self, user_id, features):
         user_history = self.users_history.setdefault(user_id, {})
@@ -172,8 +179,10 @@ the configured max_user_history_size.
             self.driver.clear_entries()
             self.init_histories()
             return
-        counter = (self.driver.count_entries_by_user(user_id) + 1 -
-                   CONF.rba.max_user_history_size)
+        counter = 0
+        if CONF.rba.max_user_history_size is not None:
+            counter = (self.driver.count_entries_by_user(user_id) + 1 -
+                       CONF.rba.max_user_history_size)
         list_to_remove = []
         if counter > 0:
             list_to_remove += self.driver.delete_oldest_n_entries_by_user(
@@ -394,34 +403,24 @@ the configured max_user_history_size.
         p = 1.0 if c_L == 0 else 0.0 if c_u_L == 0.0 else c_u_L / c_L
         return p
 
-    def p_0(self, c, N, M):
-        if c > 0:
-            return 1.0 * c / N * (1.0 - (M / (N + M)))
-        else:
-            return 1.0 / (N + M)
-
-    def M_hk(self, k, index=0, history=None):
-        """Calculate unseen features for smoothing.
-        """
-        if history is None:
-            history = self.total_history
-        subfeatures = list(self.coefficients.get(k, {}).keys())
-        if index > len(subfeatures) - 1:
-            return 1
-        c_xk_sub = len(history.get(subfeatures[index], {}))
-        return c_xk_sub + self.M_hk(k, index + 1, history)
-
     def confidence_score(self, user_id, x):
+        """Calculation of the users confidence score of a current login
+        attempts feature values x as estimation of the risk considering
+        successful login feature value sets in the past history.
+        """
         score = 1.0
         user_history = self.users_history.get(user_id, {})
         entries = self.get_user_entries(user_id)
+        total_entries = list(map(lambda x: x[1], self.driver.get_entries()))
         for k in CONF.rba.features:
             score *= self.p_A_given_xk.get(k, (lambda xk: 1.0))(x.get(k, ''))
-            p_xk = self.p(x, k, self.total_history)
-            p_linear = self.p_linear(x, k, entries, user_history)
-            score *= p_xk / (4.0 if p_linear == 0.0 else p_linear)
+            # p_xk = self.p(x, k, self.total_history)
+            p_xk = self.p_linear(x, k, total_entries, self.total_history, smoothing=True)
+            p_linear = self.p_linear(x, k, entries, user_history, smoothing=False)
+            score *= p_xk / (4 if p_linear == 0.0 else p_linear)
         p_u_given_L = self.p_u_given_L(user_id)
-        score *= (0.0 if p_u_given_L == 0.0 else self.p_u_given_A() / p_u_given_L)
+        p_u_given_A = self.p_u_given_A()
+        score *= (0.0 if p_u_given_L == 0.0 else p_u_given_A / p_u_given_L)
         return score
 
     def p_linear(self, x, k, entries, history, smoothing=True):
@@ -429,29 +428,55 @@ the configured max_user_history_size.
         for l in self.coefficients.get(k, {}).keys():
             x_hl = x.get(l, '')
             sub_history = self.feature_value_history(entries, (l, x_hl))
-            p += self.coefficients[k][l] * self.p_k(x, k, l,
-                                                    sub_history,
-                                                    history,
-                                                    smoothing)
+            p_k = self.p_k(x, l, l, sub_history, history, smoothing)
+            p += self.coefficients[k][l] * p_k
             smoothing = False
         return p
 
     def p_k(self, x, k, l, sub_history, history, smoothing=True):
+        vals_p_x_hk = {}
+        vals_p_hk = {}
         # Likelihood of feature is in history of subfeature
-        p_x_hk = self.p(x, k, sub_history, smoothing)
+        p_x_hk = self.p(x, k, sub_history, smoothing, vals_p_x_hk)
         # Calculate likelihood of subfeature
-        p_hk = self.p(x, l, history, smoothing)
+        p_hk = self.p(x, l, history, smoothing, vals_p_hk)
         p = p_x_hk * p_hk
         return p
 
-    def p(self, x, k, history, smoothing=True):
+    def M_hk(self, k, history=None, vals={}):
+        """Calculate unseen features for smoothing.
+        """
+        if history is None:
+            history = self.total_history
+        for feature in CONF.rba.features:
+            i = 0
+            subfeatures = list(self.coefficients.get(feature, {}).keys())
+            for subfeature in subfeatures:
+                if i > len(subfeatures) - 2:
+                    break
+                if k == subfeature:
+                    next_subfeature = subfeatures[i + 1]
+                    c_sub = len(history.get(next_subfeature, {}))
+                    c_next = self.M_hk(next_subfeature, history, vals)
+                    return c_sub + c_next
+                i += 1
+        return 1
+
+    def p(self, x, k, history, smoothing=True, vals={}):
         k_in_history = history.get(k, {})
         c_xk = k_in_history.get(x.get(k, ''), 0)
         c_k = sum(k_in_history.values())
         p = 1.0
-        if smoothing:
+        if smoothing or c_xk == 0:
             M_hk = self.M_hk(k, history=history)
-            p *= self.p_0(c_xk, c_k, M_hk)
         else:
-            p *= 0.0 if c_k == 0 else (c_xk / c_k)
+            M_hk = 0
+        p *= self.p_0(c_xk, c_k, M_hk, smoothing)
         return p
+
+    def p_0(self, c, N, M, smoothing=True):
+        if c > 0:
+            return 1 * c / N * (1 - (M / (N + M)))
+        else:
+            return 1 / (N + M) if smoothing else 0.0
+

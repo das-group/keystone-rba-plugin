@@ -25,7 +25,12 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.egg*/
+AUTHORS
 MANIFEST
+etc/GeoLite2-ASN.mmdb
+etc/GeoLite2-Country.mmdb
+etc/keystone_rba_plugin.conf.sample
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -41,6 +46,7 @@ pip-delete-this-directory.txt
 htmlcov/
 .tox/
 .nox/
+cover/*
 .coverage
 .coverage.*
 .cache
@@ -50,6 +56,12 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+keystone_rba_plugin/tests/common/rba_dataset.csv
+keystone_rba_plugin/tests/common/GeoLite2-ASN.mmdb
+keystone_rba_plugin/tests/common/GeoLite2-Country.mmdb
+keystone_rba_plugin/tests/functional/rba_algorithm.py
+
+.stestr/
 
 # Translations
 *.mo

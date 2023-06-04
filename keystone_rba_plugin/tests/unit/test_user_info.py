@@ -20,16 +20,16 @@ from keystone.tests.unit import test_backend_sql as base
 from keystone.tests.unit.utils import wip
 
 from keystone_rba_plugin.auth.plugins import core
-from keystone_rba_plugin.tests.common import auth as common_auth
+from keystone_rba_plugin.tests.common import auth
 
-from pathlib import Path
-
-ASN_DB = Path().resolve() / 'etc/GeoLite2-ASN.mmdb'
-CC_DB = Path().resolve() / 'etc/GeoLite2-Country.mmdb'
+ASN_DB = auth.ASN_DB
+CC_DB = auth.CC_DB
+#ASN_DB = Path().resolve() / 'etc/GeoLite2-ASN.mmdb'
+#CC_DB = Path().resolve() / 'etc/GeoLite2-Country.mmdb'
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class TestRBAUserInfo(base.SqlTests, common_auth.RBATestMixin):
+class TestRBAUserInfo(base.SqlTests, auth.RBATestMixin):
 
     def setUp(self):
         super(TestRBAUserInfo, self).setUp()

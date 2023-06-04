@@ -37,7 +37,7 @@ class TestAuthenticationHistory(base.SqlTests, common_auth.RBATestMixin):
         features = self._build_features(
             ip='10.0.0.1',
             rtt='500',
-            osv='')['features']
+            ua='')['features']
         self.driver.create_entry(user_id, features, 0.0)
         expected = 1
         observed = self.driver.count_entries_by_user(user_id)

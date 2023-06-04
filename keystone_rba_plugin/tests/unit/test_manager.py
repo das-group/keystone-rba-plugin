@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 from keystone_rba_plugin.rba import core
 from keystone.tests.unit import test_backend_sql as base
 from keystone.tests.unit.utils import wip
@@ -21,7 +20,7 @@ from keystone_rba_plugin import conf
 from keystone_rba_plugin.tests.common import auth
 
 CONF = conf.CONF
-MALICIOUS_ADDRESSES = os.path.join(auth.DIR, 'malicious_addresses.netset')
+MALICIOUS_ADDRESSES = auth.MALICIOUS_ADDRESSES
 
 
 class TestRBAManager(base.SqlTests, auth.RBATestMixin):
@@ -45,23 +44,22 @@ class TestRBAManager(base.SqlTests, auth.RBATestMixin):
                 self.manager.add_features(user_id, features, 0.0)
 
     def test_filter_features(self):
+        self.config_fixture.config(group='rba',
+                                   features=['ip', 'rtt'])
         expected = self._build_features(
             ip='10.0.0.1',
-            rtt='500',
-            ua='')['features']
+            rtt='500')['features']
         test_features = self._build_features(
             ip='10.0.0.1',
             rtt='500',
-            bn='browser',
-            bv='1.0.0')['features']
+            ua='')['features']
         observed = self.manager._filter_features(test_features)
         self.assertEqual(expected, observed)
 
     def test_hash_features(self):
         features = self._build_features(
             ip='10.0.0.1',
-            rtt='500',
-            osv='')['features']
+            rtt='500')['features']
         observed = self.manager._hash_features(features)
         self.assertNotEqual(features, observed)
 
@@ -232,21 +230,19 @@ class TestRBAManager(base.SqlTests, auth.RBATestMixin):
         self.config_fixture.config(group='rba', maxmind_country_db_path='')
         self.manager.init_coefficients()
         self.setUp_entries()
-
         if len(self.entries) == 0:
             raise Exception
-
         observed = self.manager.M_hk('ip')
-        self.assertEquals(44, observed)
-        observed = self.manager.M_hk('ua')
-        self.assertEquals(30, observed)
-        observed = self.manager.M_hk('rtt')
         self.assertEquals(3, observed)
+        observed = self.manager.M_hk('ua')
+        self.assertEquals(1, observed)
+        observed = self.manager.M_hk('rtt')
+        self.assertEquals(1, observed)
 
 
     def test_authenticate(self):
         self.config_fixture.config(group='rba', reject_threshold=10.0)
-        self.config_fixture.config(group='rba', request_threshold=0.1)
+        self.config_fixture.config(group='rba', request_threshold=0.0015)
         user_id = self.user_foo['id']
         features = self.features['features']
         observed = self.manager.authenticate(user_id, features)
@@ -264,6 +260,6 @@ class TestRBAManager(base.SqlTests, auth.RBATestMixin):
                           user_id, None, '123')
         self.assertRaises(AssertionError, self.manager.authenticate,
                           user_id, None, None)
-        self.config_fixture.config(group='rba', reject_threshold=0.05)
+        self.config_fixture.config(group='rba', reject_threshold=0.008)
         self.assertRaises(AssertionError, self.manager.authenticate,
                           user_id, features)
